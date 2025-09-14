@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+// import { Button } from '@/components/ui/button';
+// no icon imports needed here (header contains the toggle)
 import TaskDetailsHeader from './TaskDetailsHeader';
 import { TaskFollowUpSection } from './TaskFollowUpSection';
 import { TaskTitleDescription } from './TaskDetails/TaskTitleDescription';
@@ -108,6 +110,9 @@ export function TaskDetailsPanel({
     return () => document.removeEventListener('keydown', handleKeyDown, true);
   }, [onClose, isDialogOpen]);
 
+  // Fullscreen sidebar collapse state
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
   return (
     <>
       {!task ? null : (
@@ -138,19 +143,22 @@ export function TaskDetailsPanel({
                       hideCloseButton={hideBackdrop}
                       isFullScreen={isFullScreen}
                       setFullScreen={setFullScreen}
+                      onToggleSidebar={() => setSidebarCollapsed((v) => !v)}
+                      isSidebarCollapsed={sidebarCollapsed}
                     />
                   )}
 
                   {isFullScreen ? (
                     <div className="flex-1 min-h-0 flex">
-                      {/* Sidebar */}
-                      <aside
-                        className={`w-[28rem] shrink-0 border-r overflow-y-auto ${inIframe() ? 'hidden' : ''}`}
-                      >
-                        {/* Fullscreen sidebar shows title and description above edit/delete */}
-                        <div className="space-y-2 p-3">
-                          <TaskTitleDescription task={task} />
-                        </div>
+                      {/* Sidebar (hidden when collapsed) */}
+                      {!sidebarCollapsed && (
+                        <aside
+                          className={`w-[28rem] shrink-0 border-r overflow-y-auto ${inIframe() ? 'hidden' : ''}`}
+                        >
+                          {/* Title section */}
+                          <div className="p-3 border-b">
+                            <TaskTitleDescription task={task} />
+                          </div>
 
                         {/* Current Attempt / Actions */}
                         <TaskDetailsToolbar
@@ -169,11 +177,12 @@ export function TaskDetailsPanel({
                         <TodoPanel selectedAttempt={selectedAttempt} />
 
                         {/* Task Relationships */}
-                        <TaskRelationshipViewer
-                          selectedAttempt={selectedAttempt}
-                          onNavigateToTask={onNavigateToTask}
-                        />
-                      </aside>
+                            <TaskRelationshipViewer
+                              selectedAttempt={selectedAttempt}
+                              onNavigateToTask={onNavigateToTask}
+                            />
+                          </aside>
+                      )}
 
                       {/* Main content */}
                       <main className="flex-1 min-h-0 min-w-0 flex flex-col">

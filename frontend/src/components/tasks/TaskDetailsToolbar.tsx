@@ -15,7 +15,6 @@ import { useTaskStopping } from '@/stores/useTaskDetailsUiStore';
 import CreateAttempt from '@/components/tasks/Toolbar/CreateAttempt.tsx';
 import CurrentAttempt from '@/components/tasks/Toolbar/CurrentAttempt.tsx';
 import { useUserSystem } from '@/components/config-provider';
-import { Card } from '../ui/card';
 
 // UI State Management
 type UiAction =
@@ -243,9 +242,6 @@ function TaskDetailsToolbar({
           />
         ) : (
           <div className="">
-            <Card className="bg-background border-y border-dashed p-3 text-sm">
-              Actions
-            </Card>
             <div className="p-3">
               {/* Current Attempt Info */}
               <div className="space-y-2">

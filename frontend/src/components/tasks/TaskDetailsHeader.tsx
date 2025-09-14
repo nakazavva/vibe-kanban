@@ -1,5 +1,13 @@
 import { memo } from 'react';
-import { Edit, Trash2, X, Maximize2, Minimize2 } from 'lucide-react';
+import {
+  Edit,
+  Trash2,
+  X,
+  Maximize2,
+  Minimize2,
+  PanelLeftClose,
+  PanelLeftOpen,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
@@ -20,6 +28,9 @@ interface TaskDetailsHeaderProps {
   hideCloseButton?: boolean;
   isFullScreen?: boolean;
   setFullScreen?: (isFullScreen: boolean) => void;
+  // Optional: fullscreen header left-side toggle for collapsing the sidebar
+  onToggleSidebar?: () => void;
+  isSidebarCollapsed?: boolean;
 }
 
 // backgroundColor: `hsl(var(${statusBoardColors[task.status]}) / 0.03)`,
@@ -32,6 +43,8 @@ function TaskDetailsHeader({
   hideCloseButton = false,
   isFullScreen,
   setFullScreen,
+  onToggleSidebar,
+  isSidebarCollapsed,
 }: TaskDetailsHeaderProps) {
   return (
     <div>
@@ -39,7 +52,34 @@ function TaskDetailsHeader({
         className="flex shrink-0 items-center gap-2 border-b border-dashed bg-background"
         style={{}}
       >
-        <div className="p-3 flex flex-1 items-center truncate">
+        <div className="p-3 flex flex-1 items-center truncate gap-2">
+          {/* Sidebar toggle (fullscreen only) */}
+          {isFullScreen && onToggleSidebar && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="xs"
+                    className="h-6 w-6 p-0"
+                    onClick={onToggleSidebar}
+                    aria-label={
+                      isSidebarCollapsed ? 'Show details' : 'Hide details'
+                    }
+                  >
+                    {isSidebarCollapsed ? (
+                      <PanelLeftOpen className="h-4 w-4" />
+                    ) : (
+                      <PanelLeftClose className="h-4 w-4" />
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{isSidebarCollapsed ? 'Show details' : 'Hide details'}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
           <div
             className="h-2 w-2 rounded-full inline-block"
             style={{
