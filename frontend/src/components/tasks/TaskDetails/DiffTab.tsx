@@ -1,11 +1,13 @@
 import { useDiffEntries } from '@/hooks/useDiffEntries';
-import { useMemo, useCallback, useState, useEffect } from 'react';
+import { useMemo, useCallback, useState, useEffect, useRef } from 'react';
 import { Loader } from '@/components/ui/loader';
 import { Button } from '@/components/ui/button';
 import DiffViewSwitch from '@/components/diff-view-switch';
 import DiffCard from '@/components/DiffCard';
 import { useDiffSummary } from '@/hooks/useDiffSummary';
 import type { TaskAttempt } from 'shared/types';
+import DiffFileTree from '@/components/diff/DiffFileTree';
+import { useActiveAnchor } from '@/hooks/useActiveAnchor';
 
 interface DiffTabProps {
   selectedAttempt: TaskAttempt | null;
@@ -141,51 +143,102 @@ function DiffTabContent({
   toggle,
   selectedAttempt,
 }: DiffTabContentProps) {
+  // Scroll container and sticky header refs (right pane)
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+
+  const ids = useMemo(
+    () => diffs.map((d, i) => d.newPath || d.oldPath || String(i)),
+    [diffs]
+  );
+  const activeId = useActiveAnchor(scrollRef, ids);
+
+  const ensureExpandedAndScroll = useCallback(
+    (id: string) => {
+      // Expand if collapsed
+      if (collapsedIds.has(id)) {
+        toggle(id);
+      }
+      // Scroll to anchor inside the scroll container
+      const container = scrollRef.current;
+      const header = headerRef.current;
+      const anchor = document.getElementById(`diff-${id}`);
+      if (!container || !anchor) return;
+      const headerH = header?.offsetHeight ?? 0;
+      const cRect = container.getBoundingClientRect();
+      const aRect = anchor.getBoundingClientRect();
+      const delta = aRect.top - cRect.top - headerH - 8;
+      container.scrollBy({ top: delta, behavior: 'smooth' });
+    },
+    [collapsedIds, toggle]
+  );
+
   return (
-    <div className="h-full flex flex-col relative">
-      {diffs.length > 0 && (
-        <div className="sticky top-0 bg-background border-b px-4 py-2 z-10">
-          <div className="flex items-center justify-between gap-4">
-            <span
-              className="text-xs font-mono whitespace-nowrap"
-              aria-live="polite"
-              style={{ color: 'hsl(var(--muted-foreground) / 0.7)' }}
-            >
-              {fileCount} file{fileCount === 1 ? '' : 's'} changed,{' '}
-              <span style={{ color: 'hsl(var(--console-success))' }}>
-                +{added}
-              </span>{' '}
-              <span style={{ color: 'hsl(var(--console-error))' }}>
-                -{deleted}
-              </span>
-            </span>
-            <div className="flex items-center gap-2">
-              <DiffViewSwitch />
-              <Button
-                variant="outline"
-                size="xs"
-                onClick={handleCollapseAll}
-                className="shrink-0"
+    <div className="h-full flex min-h-0">
+      {/* Left: File tree (hidden on very small screens) */}
+      <div className="hidden md:flex md:flex-col md:h-full">
+        <DiffFileTree
+          diffs={diffs}
+          activeId={activeId ?? null}
+          onSelect={ensureExpandedAndScroll}
+        />
+      </div>
+
+      {/* Right: Diff list */}
+      <div className="flex-1 min-w-0 flex flex-col relative">
+        {diffs.length > 0 && (
+          <div
+            ref={headerRef}
+            className="sticky top-0 bg-background border-b px-4 py-2 z-10"
+          >
+            <div className="flex items-center justify-between gap-4">
+              <span
+                className="text-xs font-mono whitespace-nowrap"
+                aria-live="polite"
+                style={{ color: 'hsl(var(--muted-foreground) / 0.7)' }}
               >
-                {allCollapsed ? 'Expand All' : 'Collapse All'}
-              </Button>
+                {fileCount} file{fileCount === 1 ? '' : 's'} changed,{' '}
+                <span style={{ color: 'hsl(var(--console-success))' }}>
+                  +{added}
+                </span>{' '}
+                <span style={{ color: 'hsl(var(--console-error))' }}>
+                  -{deleted}
+                </span>
+              </span>
+              <div className="flex items-center gap-2">
+                <DiffViewSwitch />
+                <Button
+                  variant="outline"
+                  size="xs"
+                  onClick={handleCollapseAll}
+                  className="shrink-0"
+                >
+                  {allCollapsed ? 'Expand All' : 'Collapse All'}
+                </Button>
+              </div>
             </div>
           </div>
+        )}
+        <div ref={scrollRef} className="flex-1 overflow-y-auto px-4">
+          {diffs.map((diff, idx) => {
+            const id = diff.newPath || diff.oldPath || String(idx);
+            return (
+              <div
+                key={id}
+                id={`diff-${id}`}
+                data-anchor-id={id}
+                className="scroll-mt-14"
+              >
+                <DiffCard
+                  diff={diff}
+                  expanded={!collapsedIds.has(id)}
+                  onToggle={() => toggle(id)}
+                  selectedAttempt={selectedAttempt}
+                />
+              </div>
+            );
+          })}
         </div>
-      )}
-      <div className="flex-1 overflow-y-auto px-4">
-        {diffs.map((diff, idx) => {
-          const id = diff.newPath || diff.oldPath || String(idx);
-          return (
-            <DiffCard
-              key={id}
-              diff={diff}
-              expanded={!collapsedIds.has(id)}
-              onToggle={() => toggle(id)}
-              selectedAttempt={selectedAttempt}
-            />
-          );
-        })}
       </div>
     </div>
   );
