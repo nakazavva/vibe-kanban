@@ -1,5 +1,5 @@
 import { useDiffStream } from '@/hooks/useDiffStream';
-import { useMemo, useCallback, useState, useEffect } from 'react';
+import { useMemo, useCallback, useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Loader } from '@/components/ui/loader';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,8 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import type { TaskAttempt } from 'shared/types';
+import DiffFileTree from '@/components/diff/DiffFileTree';
+import { useActiveAnchor } from '@/hooks/useActiveAnchor';
 import GitOperations, {
   type GitOperationsInputs,
 } from '@/components/tasks/Toolbar/GitOperations.tsx';
@@ -153,85 +155,134 @@ function DiffsPanelContent({
   loading,
   t,
 }: DiffsPanelContentProps) {
+  // Scroll container and sticky header refs (right pane)
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+
+  const ids = useMemo(
+    () => diffs.map((d, i) => d.newPath || d.oldPath || String(i)),
+    [diffs]
+  );
+  const activeId = useActiveAnchor(scrollRef, ids);
+
+  const ensureExpandedAndScroll = useCallback(
+    (id: string) => {
+      // Expand if collapsed
+      if (collapsedIds.has(id)) {
+        toggle(id);
+      }
+      // Scroll to anchor inside the scroll container
+      const container = scrollRef.current;
+      const header = headerRef.current;
+      const anchor = document.getElementById(`diff-${id}`);
+      if (!container || !anchor) return;
+      const headerH = header?.offsetHeight ?? 0;
+      const cRect = container.getBoundingClientRect();
+      const aRect = anchor.getBoundingClientRect();
+      const delta = aRect.top - cRect.top - headerH - 8;
+      container.scrollBy({ top: delta, behavior: 'smooth' });
+    },
+    [collapsedIds, toggle]
+  );
+
   return (
-    <div className="h-full flex flex-col relative">
-      {diffs.length > 0 && (
-        <NewCardHeader
-          className="sticky top-0 z-10"
-          actions={
-            <>
-              <DiffViewSwitch />
-              <div className="h-4 w-px bg-border" />
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="icon"
-                      onClick={handleCollapseAll}
-                      aria-pressed={allCollapsed}
-                      aria-label={
-                        allCollapsed
-                          ? t('diff.expandAll')
-                          : t('diff.collapseAll')
-                      }
-                    >
-                      {allCollapsed ? (
-                        <ChevronsDown className="h-4 w-4" />
-                      ) : (
-                        <ChevronsUp className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom">
-                    {allCollapsed ? t('diff.expandAll') : t('diff.collapseAll')}
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </>
-          }
-        >
-          <div className="flex items-center">
-            <span
-              className="text-sm text-muted-foreground whitespace-nowrap"
-              aria-live="polite"
-            >
-              {t('diff.filesChanged', { count: fileCount })}{' '}
-              <span className="text-green-600 dark:text-green-500">
-                +{added}
-              </span>{' '}
-              <span className="text-red-600 dark:text-red-500">-{deleted}</span>
-            </span>
-          </div>
-        </NewCardHeader>
-      )}
-      {gitOps && selectedAttempt && (
-        <div className="px-3">
-          <GitOperations selectedAttempt={selectedAttempt} {...gitOps} />
-        </div>
-      )}
-      <div className="flex-1 overflow-y-auto px-3">
-        {loading ? (
-          <div className="flex items-center justify-center h-full">
-            <Loader />
-          </div>
-        ) : diffs.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
-            {t('diff.noChanges')}
-          </div>
-        ) : (
-          diffs.map((diff, idx) => {
-            const id = diff.newPath || diff.oldPath || String(idx);
-            return (
-              <DiffCard
-                key={id}
-                diff={diff}
-                expanded={!collapsedIds.has(id)}
-                onToggle={() => toggle(id)}
-                selectedAttempt={selectedAttempt}
-              />
-            );
-          })
+    <div className="h-full flex min-h-0">
+      {/* Left: File tree (hidden on very small screens) */}
+      <div className="hidden md:flex md:flex-col md:h-full">
+        <DiffFileTree
+          diffs={diffs}
+          activeId={activeId ?? null}
+          onSelect={ensureExpandedAndScroll}
+        />
+      </div>
+
+      {/* Right: Diff list */}
+      <div className="flex-1 min-w-0 flex flex-col relative">
+        {diffs.length > 0 && (
+          <NewCardHeader
+            ref={headerRef}
+            className="sticky top-0 z-10"
+            actions={
+              <>
+                <DiffViewSwitch />
+                <div className="h-4 w-px bg-border" />
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="icon"
+                        onClick={handleCollapseAll}
+                        aria-pressed={allCollapsed}
+                        aria-label={
+                          allCollapsed
+                            ? t('diff.expandAll')
+                            : t('diff.collapseAll')
+                        }
+                      >
+                        {allCollapsed ? (
+                          <ChevronsDown className="h-4 w-4" />
+                        ) : (
+                          <ChevronsUp className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">
+                      {allCollapsed ? t('diff.expandAll') : t('diff.collapseAll')}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </>
+            }
+          >
+            <div className="flex items-center">
+              <span
+                className="text-sm text-muted-foreground whitespace-nowrap"
+                aria-live="polite"
+              >
+                {t('diff.filesChanged', { count: fileCount })}{' '}
+                <span className="text-green-600 dark:text-green-500">
+                  +{added}
+                </span>{' '}
+                <span className="text-red-600 dark:text-red-500">-{deleted}</span>
+              </span>
+            </div>
+          </NewCardHeader>
         )}
+        {gitOps && selectedAttempt && (
+          <div className="px-3">
+            <GitOperations selectedAttempt={selectedAttempt} {...gitOps} />
+          </div>
+        )}
+        <div ref={scrollRef} className="flex-1 overflow-y-auto px-3">
+          {loading ? (
+            <div className="flex items-center justify-center h-full">
+              <Loader />
+            </div>
+          ) : diffs.length === 0 ? (
+            <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
+              {t('diff.noChanges')}
+            </div>
+          ) : (
+            diffs.map((diff, idx) => {
+              const id = diff.newPath || diff.oldPath || String(idx);
+              return (
+                <div
+                  key={id}
+                  id={`diff-${id}`}
+                  data-anchor-id={id}
+                  className="scroll-mt-14"
+                >
+                  <DiffCard
+                    diff={diff}
+                    expanded={!collapsedIds.has(id)}
+                    onToggle={() => toggle(id)}
+                    selectedAttempt={selectedAttempt}
+                  />
+                </div>
+              );
+            })
+          )}
+        </div>
       </div>
     </div>
   );
