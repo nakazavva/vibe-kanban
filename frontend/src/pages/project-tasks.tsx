@@ -60,6 +60,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { AttemptHeaderActions } from '@/components/panels/AttemptHeaderActions';
+import { AttemptExecutorBadge } from '@/components/panels/AttemptExecutorBadge';
 import { TaskPanelHeaderActions } from '@/components/panels/TaskPanelHeaderActions';
 
 type Task = TaskWithAttemptStatus;
@@ -716,6 +717,7 @@ export function ProjectTasks() {
             )}
           </BreadcrumbList>
         </Breadcrumb>
+        {!isTaskView && attempt && <AttemptExecutorBadge attempt={attempt} />}
       </div>
     </NewCardHeader>
   ) : null;

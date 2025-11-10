@@ -1,10 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import type {
-  ExecutorAction,
-  ExecutorConfig,
-  ExecutionProcess,
-  ExecutorProfileId,
-} from 'shared/types';
+import type { ExecutorConfig, ExecutionProcess } from 'shared/types';
+import { latestExecutorProfileId } from '@/lib/executor-profiles';
 
 type Args = {
   processes: ExecutionProcess[];
@@ -12,36 +8,10 @@ type Args = {
 };
 
 export function useDefaultVariant({ processes, profiles }: Args) {
-  const latestProfileId = useMemo<ExecutorProfileId | null>(() => {
-    if (!processes?.length) return null;
-
-    // Walk processes from newest to oldest and extract the first executor_profile_id
-    // from either the action itself or its next_action (when current is a ScriptRequest).
-    const extractProfile = (
-      action: ExecutorAction | null
-    ): ExecutorProfileId | null => {
-      let curr: ExecutorAction | null = action;
-      while (curr) {
-        const typ = curr.typ;
-        switch (typ.type) {
-          case 'CodingAgentInitialRequest':
-          case 'CodingAgentFollowUpRequest':
-            return typ.executor_profile_id;
-          case 'ScriptRequest':
-            curr = curr.next_action;
-            continue;
-        }
-      }
-      return null;
-    };
-    return (
-      processes
-        .slice()
-        .reverse()
-        .map((p) => extractProfile(p.executor_action ?? null))
-        .find((pid) => pid !== null) ?? null
-    );
-  }, [processes]);
+  const latestProfileId = useMemo(
+    () => latestExecutorProfileId(processes),
+    [processes]
+  );
 
   const defaultFollowUpVariant = latestProfileId?.variant ?? null;
 
