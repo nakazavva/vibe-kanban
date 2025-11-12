@@ -51,14 +51,6 @@ import TaskAttemptPanel from '@/components/panels/TaskAttemptPanel';
 import TaskPanel from '@/components/panels/TaskPanel';
 import TodoPanel from '@/components/tasks/TodoPanel';
 import { NewCard, NewCardHeader } from '@/components/ui/new-card';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbLink,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
 import { AttemptHeaderActions } from '@/components/panels/AttemptHeaderActions';
 import { AttemptExecutorBadge } from '@/components/panels/AttemptExecutorBadge';
 import { TaskPanelHeaderActions } from '@/components/panels/TaskPanelHeaderActions';
@@ -614,18 +606,6 @@ export function ProjectTasks() {
     return <Loader message={t('loading')} size={32} className="py-8" />;
   }
 
-  const truncateTitle = (title: string | undefined, maxLength = 20) => {
-    if (!title) return 'Task';
-    if (title.length <= maxLength) return title;
-
-    const truncated = title.substring(0, maxLength);
-    const lastSpace = truncated.lastIndexOf(' ');
-
-    return lastSpace > 0
-      ? `${truncated.substring(0, lastSpace)}...`
-      : `${truncated}...`;
-  };
-
   const kanbanContent =
     tasks.length === 0 ? (
       <div className="max-w-7xl mx-auto mt-8">
@@ -686,38 +666,38 @@ export function ProjectTasks() {
         )
       }
     >
-      <div className="mx-auto w-full">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              {isTaskView ? (
-                <BreadcrumbPage>
-                  {truncateTitle(selectedTask?.title)}
-                </BreadcrumbPage>
-              ) : (
-                <BreadcrumbLink
-                  className="cursor-pointer hover:underline"
-                  onClick={() =>
-                    navigateWithSearch(paths.task(projectId!, taskId!))
-                  }
-                >
-                  {truncateTitle(selectedTask?.title)}
-                </BreadcrumbLink>
-              )}
-            </BreadcrumbItem>
-            {!isTaskView && (
-              <>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>
-                    {attempt?.branch || 'Task Attempt'}
-                  </BreadcrumbPage>
-                </BreadcrumbItem>
-              </>
-            )}
-          </BreadcrumbList>
-        </Breadcrumb>
-        {!isTaskView && attempt && <AttemptExecutorBadge attempt={attempt} />}
+      <div className="mx-auto w-full space-y-1">
+        {isTaskView ? (
+          <p className="text-base font-semibold leading-tight text-foreground break-words">
+            {selectedTask.title?.trim() || t('tasks:taskHeader.titleFallback')}
+          </p>
+        ) : (
+          <button
+            type="button"
+            onClick={() => {
+              if (projectId && taskId) {
+                navigateWithSearch(paths.task(projectId, taskId));
+              }
+            }}
+            className="w-full text-left text-base font-semibold leading-tight text-foreground break-words hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+          >
+            {selectedTask.title?.trim() || t('tasks:taskHeader.titleFallback')}
+          </button>
+        )}
+        {!isTaskView && attempt && (
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+            <span className="whitespace-nowrap">
+              {t('tasks:taskHeader.branchLabel')}:{' '}
+              <span className="text-foreground font-medium">
+                {attempt.branch || '—'}
+              </span>
+            </span>
+            <AttemptExecutorBadge
+              attempt={attempt}
+              className="text-xs text-muted-foreground"
+            />
+          </div>
+        )}
       </div>
     </NewCardHeader>
   ) : null;

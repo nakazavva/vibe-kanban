@@ -245,7 +245,9 @@
   "taskHeader": {
     "closePanel": "Close panel",
     "deleteTask": "Delete task",
-    "editTask": "Edit task"
+    "editTask": "Edit task",
+    "titleFallback": "タスク",
+    "branchLabel": "Branch"
   },
   "taskPanel": {
     "attemptsCount": "Attempts ({{count}})",

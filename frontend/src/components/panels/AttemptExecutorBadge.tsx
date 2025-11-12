@@ -4,12 +4,17 @@ import type { TaskAttempt, ExecutorProfileId } from 'shared/types';
 import { ProfileVariantBadge } from '@/components/common/ProfileVariantBadge';
 import { useExecutionProcessesContext } from '@/contexts/ExecutionProcessesContext';
 import { latestExecutorProfileId } from '@/lib/executor-profiles';
+import { cn } from '@/lib/utils';
 
 interface AttemptExecutorBadgeProps {
   attempt?: TaskAttempt | null;
+  className?: string;
 }
 
-export function AttemptExecutorBadge({ attempt }: AttemptExecutorBadgeProps) {
+export function AttemptExecutorBadge({
+  attempt,
+  className,
+}: AttemptExecutorBadgeProps) {
   const { t } = useTranslation('tasks');
   const { executionProcessesAll } = useExecutionProcessesContext();
 
@@ -35,7 +40,12 @@ export function AttemptExecutorBadge({ attempt }: AttemptExecutorBadgeProps) {
   }
 
   return (
-    <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+    <div
+      className={cn(
+        'flex items-center gap-2 text-xs text-muted-foreground',
+        className
+      )}
+    >
       <span>{t('processes.agent')}</span>
       <ProfileVariantBadge profileVariant={profileVariant} />
     </div>

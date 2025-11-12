@@ -127,7 +127,9 @@
   "taskHeader": {
     "editTask": "Edit task",
     "deleteTask": "Delete task",
-    "closePanel": "Close panel"
+    "closePanel": "Close panel",
+    "titleFallback": "Task",
+    "branchLabel": "Branch"
   },
   "toolbar": {
     "actions": "Actions",
