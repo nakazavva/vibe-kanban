@@ -260,6 +260,8 @@ export type ConflictOp = "rebase" | "merge" | "cherry_pick" | "revert";
 
 export type TaskAttempt = { id: string, task_id: string, container_ref: string | null, branch: string, target_branch: string, executor: string, worktree_deleted: boolean, setup_completed_at: string | null, created_at: string, updated_at: string, };
 
+export type ContainerServiceInfo = { containerId: string, containerName: string, service: string, state: string, status: string, image: string, ports: Array<string>, composeProject: string, browserUrl: string | null, };
+
 export type ExecutionProcess = { id: string, task_attempt_id: string, run_reason: ExecutionProcessRunReason, executor_action: ExecutorAction, 
 /**
  * Git HEAD commit OID captured before the process starts

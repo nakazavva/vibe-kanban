@@ -48,6 +48,7 @@ import { TasksLayout, type LayoutMode } from '@/components/layout/TasksLayout';
 import { PreviewPanel } from '@/components/panels/PreviewPanel';
 import { DiffsPanel } from '@/components/panels/DiffsPanel';
 import TaskAttemptPanel from '@/components/panels/TaskAttemptPanel';
+import { EnvironmentPanel } from '@/components/panels/EnvironmentPanel';
 import TaskPanel from '@/components/panels/TaskPanel';
 import TodoPanel from '@/components/tasks/TodoPanel';
 import { NewCard, NewCardHeader } from '@/components/ui/new-card';
@@ -219,9 +220,13 @@ export function ProjectTasks() {
       .catch(() => setBranches([]));
   }, [projectId]);
 
-  const rawMode = searchParams.get('view') as LayoutMode;
+  const allowedModes = ['preview', 'services', 'diffs'] as const;
+  type AuxMode = (typeof allowedModes)[number];
+  const viewParam = searchParams.get('view');
   const mode: LayoutMode =
-    rawMode === 'preview' || rawMode === 'diffs' ? rawMode : null;
+    viewParam && (allowedModes as readonly string[]).includes(viewParam)
+      ? (viewParam as AuxMode)
+      : null;
 
   // TODO: Remove this redirect after v0.1.0 (legacy URL support for bookmarked links)
   // Migrates old `view=logs` to `view=diffs`
@@ -356,11 +361,11 @@ export function ProjectTasks() {
   /**
    * Cycle the attempt area view.
    * - When panel is closed: opens task details (if a task is selected)
-   * - When panel is open: cycles among [attempt, preview, diffs]
+   * - When panel is open: cycles among [attempt, preview, services, diffs]
    */
   const cycleView = useCallback(
     (direction: 'forward' | 'backward' = 'forward') => {
-      const order: LayoutMode[] = [null, 'preview', 'diffs'];
+      const order: LayoutMode[] = [null, 'preview', 'services', 'diffs'];
       const idx = order.indexOf(mode);
       const next =
         direction === 'forward'
@@ -384,7 +389,7 @@ export function ProjectTasks() {
     () => {
       if (isPanelOpen) {
         // Track keyboard shortcut before cycling view
-        const order: LayoutMode[] = [null, 'preview', 'diffs'];
+        const order: LayoutMode[] = [null, 'preview', 'services', 'diffs'];
         const idx = order.indexOf(mode);
         const next = order[(idx + 1) % order.length];
 
@@ -397,6 +402,13 @@ export function ProjectTasks() {
           });
         } else if (next === 'diffs') {
           posthog?.capture('diffs_navigated', {
+            trigger: 'keyboard',
+            direction: 'forward',
+            timestamp: new Date().toISOString(),
+            source: 'frontend',
+          });
+        } else if (next === 'services') {
+          posthog?.capture('containers_navigated', {
             trigger: 'keyboard',
             direction: 'forward',
             timestamp: new Date().toISOString(),
@@ -417,7 +429,7 @@ export function ProjectTasks() {
     () => {
       if (isPanelOpen) {
         // Track keyboard shortcut before cycling view
-        const order: LayoutMode[] = [null, 'preview', 'diffs'];
+        const order: LayoutMode[] = [null, 'preview', 'services', 'diffs'];
         const idx = order.indexOf(mode);
         const next = order[(idx - 1 + order.length) % order.length];
 
@@ -430,6 +442,13 @@ export function ProjectTasks() {
           });
         } else if (next === 'diffs') {
           posthog?.capture('diffs_navigated', {
+            trigger: 'keyboard',
+            direction: 'backward',
+            timestamp: new Date().toISOString(),
+            source: 'frontend',
+          });
+        } else if (next === 'services') {
+          posthog?.capture('containers_navigated', {
             trigger: 'keyboard',
             direction: 'backward',
             timestamp: new Date().toISOString(),
@@ -736,6 +755,9 @@ export function ProjectTasks() {
   const auxContent = (
     <div className="relative h-full w-full">
       {mode === 'preview' && attempt && selectedTask && <PreviewPanel />}
+      {mode === 'services' && attempt && (
+        <EnvironmentPanel attemptId={attempt.id} />
+      )}
       {mode === 'diffs' && attempt && selectedTask && (
         <DiffsPanelContainer
           attempt={attempt}

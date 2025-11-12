@@ -17,7 +17,7 @@ const extractProfileFromAction = (
       case 'CodingAgentFollowUpRequest':
         return typ.executor_profile_id;
       case 'ScriptRequest':
-        current = typ.next_action ?? null;
+        current = current.next_action ?? null;
         continue;
       default:
         return null;

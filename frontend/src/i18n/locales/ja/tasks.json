@@ -63,6 +63,7 @@
   "attemptHeaderActions": {
     "diffs": "Diffs",
     "preview": "Preview",
+    "containers": "コンテナ",
     "relatedTasks": "Related tasks"
   },
   "branches": {
@@ -201,6 +202,54 @@
       "item3": "Web Companion（クリックして編集機能に必要）をインストールしましたか？インストールしていない場合は、",
       "item3Link": "こちらのインストール手順に従ってください",
       "title": "アプリケーションのプレビューに問題があります："
+    }
+  },
+  "environment": {
+    "title": "コンテナ",
+    "sidebarTitle": "コンテナ",
+    "loading": "コンテナを読み込み中...",
+    "noAttempt": "コンテナを起動するには試行を実行してください。",
+    "empty": "この試行で稼働中のコンテナはありません。",
+    "selectPrompt": "一覧からサービスを選択してください。",
+    "domainUnavailable": "公開ドメインはありません",
+    "noPorts": "公開ポートはありません",
+    "actions": {
+      "refresh": "更新",
+      "openBrowser": "ブラウザで開く",
+      "copyUrl": "URLをコピー"
+    },
+    "tabs": {
+      "info": "情報",
+      "logs": "ログ",
+      "terminal": "ターミナル"
+    },
+    "fields": {
+      "compose": "Composeプロジェクト",
+      "image": "イメージ",
+      "domain": "ドメイン",
+      "ports": "ポート"
+    },
+    "logs": {
+      "selectService": "サービスを選択してログを表示してください。",
+      "waiting": "ログを待機しています..."
+    },
+    "terminal": {
+      "selectService": "サービスを選択してシェルを開きます。",
+      "connecting": "コンテナシェルに接続しています...",
+      "ready": "接続しました。コマンドを入力してください。",
+      "closed": "シェルを終了しました。",
+      "error": "シェル接続が切断されました。"
+    },
+    "statuses": {
+      "running": "実行中",
+      "exited": "停止",
+      "dead": "ダウン",
+      "paused": "一時停止",
+      "created": "作成済み"
+    },
+    "errors": {
+      "title": "コンテナを読み込めませんでした",
+      "generic": "Docker が起動しているか確認し、再度お試しください。"
     }
   },
   "processes": {

@@ -63,6 +63,7 @@
   "attemptHeaderActions": {
     "diffs": "Diffs",
     "preview": "Preview",
+    "containers": "Contenedores",
     "relatedTasks": "Related tasks"
   },
   "branches": {
@@ -201,6 +202,54 @@
       "item3": "¿Has instalado el Web Companion (requerido para hacer clic y editar)? Si no, por favor",
       "item3Link": "sigue las instrucciones de instalación aquí",
       "title": "Tenemos problemas al previsualizar tu aplicación:"
+    }
+  },
+  "environment": {
+    "title": "Contenedores",
+    "sidebarTitle": "Contenedores",
+    "loading": "Cargando contenedores...",
+    "noAttempt": "Ejecuta un intento para aprovisionar los contenedores.",
+    "empty": "No hay contenedores en ejecución para este intento.",
+    "selectPrompt": "Selecciona un servicio de la lista para inspeccionarlo.",
+    "domainUnavailable": "No hay dominio público disponible",
+    "noPorts": "Sin puertos expuestos",
+    "actions": {
+      "refresh": "Actualizar",
+      "openBrowser": "Abrir en el navegador",
+      "copyUrl": "Copiar URL"
+    },
+    "tabs": {
+      "info": "Información",
+      "logs": "Registros",
+      "terminal": "Terminal"
+    },
+    "fields": {
+      "compose": "Proyecto de Compose",
+      "image": "Imagen",
+      "domain": "Dominio",
+      "ports": "Puertos"
+    },
+    "logs": {
+      "selectService": "Selecciona un servicio para ver los registros.",
+      "waiting": "Esperando registros..."
+    },
+    "terminal": {
+      "selectService": "Selecciona un servicio para abrir un shell.",
+      "connecting": "Conectando con el shell del contenedor...",
+      "ready": "Conectado. Escribe un comando para comenzar.",
+      "closed": "Shell cerrado.",
+      "error": "Se perdió la conexión del shell."
+    },
+    "statuses": {
+      "running": "En ejecución",
+      "exited": "Finalizado",
+      "dead": "Muerto",
+      "paused": "En pausa",
+      "created": "Creado"
+    },
+    "errors": {
+      "title": "No se pudieron cargar los contenedores",
+      "generic": "Asegúrate de que Docker esté en ejecución e inténtalo de nuevo."
     }
   },
   "processes": {

@@ -3,7 +3,7 @@ import { PanelGroup, Panel, PanelResizeHandle } from 'react-resizable-panels';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
-export type LayoutMode = 'preview' | 'diffs' | null;
+export type LayoutMode = 'preview' | 'diffs' | 'services' | null;
 
 interface TasksLayoutProps {
   kanban: ReactNode;
@@ -47,8 +47,14 @@ function saveSizes(key: string, sizes: SplitSizes): void {
   }
 }
 
+const MODE_LABELS: Record<Exclude<LayoutMode, null>, string> = {
+  preview: 'Preview',
+  diffs: 'Diffs',
+  services: 'Containers',
+};
+
 /**
- * AuxRouter - Handles nested AnimatePresence for preview/diffs transitions.
+ * AuxRouter - Handles nested AnimatePresence for secondary panel transitions.
  */
 function AuxRouter({ mode, aux }: { mode: LayoutMode; aux: ReactNode }) {
   return (
@@ -154,7 +160,7 @@ function RightWorkArea({
               collapsible={false}
               className="min-w-0 min-h-0 overflow-hidden"
               role="region"
-              aria-label={mode === 'preview' ? 'Preview' : 'Diffs'}
+              aria-label={mode ? MODE_LABELS[mode] ?? 'Details' : 'Details'}
             >
               <AuxRouter mode={mode} aux={aux} />
             </Panel>

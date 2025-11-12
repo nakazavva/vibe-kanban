@@ -86,6 +86,54 @@
       "stopDevServer": "Stop dev server"
     }
   },
+  "environment": {
+    "title": "Containers",
+    "sidebarTitle": "Containers",
+    "loading": "Loading containers…",
+    "noAttempt": "Run an attempt to provision the dev containers.",
+    "empty": "No containers are running for this attempt.",
+    "selectPrompt": "Select a service from the list to inspect it.",
+    "domainUnavailable": "No public domain available",
+    "noPorts": "No exposed ports",
+    "actions": {
+      "refresh": "Refresh",
+      "openBrowser": "Open in browser",
+      "copyUrl": "Copy URL"
+    },
+    "tabs": {
+      "info": "Info",
+      "logs": "Logs",
+      "terminal": "Terminal"
+    },
+    "fields": {
+      "compose": "Compose project",
+      "image": "Image",
+      "domain": "Domain",
+      "ports": "Ports"
+    },
+    "logs": {
+      "selectService": "Select a service to stream logs.",
+      "waiting": "Waiting for logs…"
+    },
+    "terminal": {
+      "selectService": "Select a service to open a shell.",
+      "connecting": "Connecting to container shell…",
+      "ready": "Connected. Type a command to begin.",
+      "closed": "Shell closed.",
+      "error": "Shell connection lost."
+    },
+    "statuses": {
+      "running": "Running",
+      "exited": "Exited",
+      "dead": "Dead",
+      "paused": "Paused",
+      "created": "Created"
+    },
+    "errors": {
+      "title": "Unable to load containers",
+      "generic": "Make sure Docker is running and try again."
+    }
+  },
   "diff": {
     "viewModes": {
       "inline": "Inline view",
@@ -256,6 +304,7 @@
   "attemptHeaderActions": {
     "preview": "Preview",
     "diffs": "Diffs",
+    "containers": "Containers",
     "relatedTasks": "Related tasks"
   },
   "actionsMenu": {

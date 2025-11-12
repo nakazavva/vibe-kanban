@@ -6,6 +6,7 @@ import {
   BranchStatus,
   CheckTokenResponse,
   Config,
+  ContainerServiceInfo,
   CommitInfo,
   CreateFollowUpAttempt,
   CreateGitHubPrRequest,
@@ -651,6 +652,17 @@ export const executionProcessesApi = {
       }
     );
     return handleApiResponse<void>(response);
+  },
+};
+
+export const containersApi = {
+  listServices: async (
+    attemptId: string
+  ): Promise<ContainerServiceInfo[]> => {
+    const response = await makeRequest(
+      `/api/containers/${attemptId}/services`
+    );
+    return handleApiResponse<ContainerServiceInfo[]>(response);
   },
 };
 

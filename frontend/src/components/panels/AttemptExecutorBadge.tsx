@@ -27,7 +27,7 @@ export function AttemptExecutorBadge({
 
     if (attempt?.executor) {
       return {
-        executor: attempt.executor,
+        executor: attempt.executor as ExecutorProfileId['executor'],
         variant: null,
       };
     }
