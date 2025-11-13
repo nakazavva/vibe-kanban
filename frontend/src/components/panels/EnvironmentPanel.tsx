@@ -46,6 +46,10 @@ export function EnvironmentPanel({ attemptId }: EnvironmentPanelProps) {
   const { t } = useTranslation('tasks');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'info' | 'logs' | 'terminal'>('info');
+  const [isRestarting, setIsRestarting] = useState(false);
+  const [restartStatus, setRestartStatus] = useState<
+    { type: 'success' | 'error'; message: string } | null
+  >(null);
 
   const {
     data,
@@ -75,6 +79,27 @@ export function EnvironmentPanel({ attemptId }: EnvironmentPanelProps) {
   const selectedService = useMemo(() => {
     return services.find((svc) => svc.containerName === selectedId) ?? null;
   }, [services, selectedId]);
+
+  useEffect(() => {
+    setRestartStatus(null);
+    setIsRestarting(false);
+  }, [selectedService?.containerName]);
+
+  const handleRestart = async () => {
+    if (!selectedService) return;
+    setIsRestarting(true);
+    setRestartStatus(null);
+    try {
+      await containersApi.restartService(selectedService.containerName);
+      setRestartStatus({ type: 'success', message: t('environment.restart.success') });
+      await refetch();
+    } catch (err) {
+      console.error(err);
+      setRestartStatus({ type: 'error', message: t('environment.restart.error') });
+    } finally {
+      setIsRestarting(false);
+    }
+  };
 
   if (!attemptId) {
     return (
@@ -228,6 +253,41 @@ export function EnvironmentPanel({ attemptId }: EnvironmentPanelProps) {
                           : t('environment.noPorts')
                       }
                     />
+                    <div className="rounded-md border bg-muted/40 p-4">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <p className="text-sm font-semibold">
+                            {t('environment.restart.title')}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {t('environment.restart.helper')}
+                          </p>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={handleRestart}
+                          disabled={isRestarting}
+                        >
+                          {isRestarting && (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          )}
+                          {t('environment.actions.restart')}
+                        </Button>
+                      </div>
+                      {restartStatus && (
+                        <p
+                          className={cn(
+                            'mt-2 text-xs',
+                            restartStatus.type === 'success'
+                              ? 'text-green-600'
+                              : 'text-red-600'
+                          )}
+                        >
+                          {restartStatus.message}
+                        </p>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
               </TabsContent>

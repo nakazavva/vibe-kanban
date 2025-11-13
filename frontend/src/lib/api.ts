@@ -664,6 +664,15 @@ export const containersApi = {
     );
     return handleApiResponse<ContainerServiceInfo[]>(response);
   },
+  restartService: async (containerName: string): Promise<void> => {
+    const response = await makeRequest(
+      `/api/containers/${encodeURIComponent(containerName)}/restart`,
+      {
+        method: 'POST',
+      }
+    );
+    await handleApiResponse<null>(response);
+  },
 };
 
 // File System APIs

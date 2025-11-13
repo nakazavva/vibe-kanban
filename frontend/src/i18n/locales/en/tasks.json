@@ -98,7 +98,8 @@
     "actions": {
       "refresh": "Refresh",
       "openBrowser": "Open in browser",
-      "copyUrl": "Copy URL"
+      "copyUrl": "Copy URL",
+      "restart": "Restart container"
     },
     "tabs": {
       "info": "Info",
@@ -110,6 +111,12 @@
       "image": "Image",
       "domain": "Domain",
       "ports": "Ports"
+    },
+    "restart": {
+      "title": "Send a restart",
+      "helper": "Use this if the container becomes unhealthy or code changes are not taking effect.",
+      "success": "Restart command sent.",
+      "error": "Failed to restart the container. Check Docker and try again."
     },
     "logs": {
       "selectService": "Select a service to stream logs.",

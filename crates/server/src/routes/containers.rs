@@ -8,7 +8,7 @@ use axum::{
         ws::{Message, WebSocket, WebSocketUpgrade},
     },
     response::{IntoResponse, Json as ResponseJson},
-    routing::get,
+    routing::{get, post},
 };
 use db::models::task_attempt::TaskAttempt;
 use deployment::Deployment;
@@ -146,6 +146,30 @@ pub fn router(_deployment: &DeploymentImpl) -> Router<DeploymentImpl> {
             "/containers/{container}/shell/ws",
             get(stream_container_shell_ws),
         )
+        .route(
+            "/containers/{container}/restart",
+            post(restart_container),
+        )
+}
+
+pub async fn restart_container(
+    Path(container_name): Path<String>,
+) -> Result<ResponseJson<ApiResponse<()>>, ApiError> {
+    let container_name = sanitize_identifier(&container_name)?;
+
+    let output = Command::new("docker")
+        .args(["restart", &container_name])
+        .output()
+        .await?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(ApiError::Conflict(format!(
+            "Failed to restart container {container_name}: {stderr}"
+        )));
+    }
+
+    Ok(ResponseJson(ApiResponse::success(())))
 }
 
 async fn handle_container_logs_ws(socket: WebSocket, container_name: String) -> anyhow::Result<()> {
